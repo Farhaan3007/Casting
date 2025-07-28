@@ -13,10 +13,6 @@ from agents import Agent, Runner
 # Load API key from .env
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
-if OpenAI:
-    client = OpenAI(api_key=openai_api_key)
-else:
-    client = None
 
 st.title("Agentic File Assistant (using Agents SDK)")
 
@@ -72,12 +68,42 @@ if uploaded:
             st.subheader("Casting Totals")
             st.write(totals)
 
-        user_query = st.text_input("Ask your agent about this file:")
+        if st.button("Analyze Financials"):
+            fin_agent = Agent(
+                name="Financial Extractor",
+                instructions=(
+                    "Extract the profit & loss statement, statement of financial "
+                    "position, statement of changes in equity and cashflow "
+                    "statement for both years. Respond in Markdown."
+                ),
+            )
+            notes_agent = Agent(
+                name="Notes Extractor",
+                instructions="Extract the notes for both years. Respond in Markdown.",
+            )
+            compare_agent = Agent(
+                name="Comparison Agent",
+                instructions=(
+                    "Compare the figures in the financial statements and the "
+                    "notes and identify any discrepancies. Respond in Markdown."
+                ),
+            )
+            summary_agent = Agent(
+                name="Summary Agent",
+                instructions=(
+                    "Summarize the discrepancies in a concise Markdown table "
+                    "with columns 'Item' and 'Issue'."
+                ),
+            )
 
-        if st.button("Run Agent") and user_query:
-            instructions = "Analyze the financial statement and provide findings in markdown."
-            agent = Agent(name="File Agent", instructions=instructions, model="gpt-4o")
-            prompt = f"{text[:4000]}\n\nUser question: {user_query}"
-            result = Runner.run_sync(agent, input=prompt)
-            st.markdown("**Agent Response:**")
-            st.write(result.final_output)
+            with st.spinner("Running Financial Extractor..."):
+                fin_result = Runner.run_sync(fin_agent, input=text[:4000])
+            with st.spinner("Running Notes Extractor..."):
+                notes_result = Runner.run_sync(notes_agent, input=text[:4000])
+            compare_input = f"STATEMENTS:\n{fin_result.final_output}\n\nNOTES:\n{notes_result.final_output}"
+            with st.spinner("Running Comparison Agent..."):
+                compare_result = Runner.run_sync(compare_agent, input=compare_input)
+            with st.spinner("Running Summary Agent..."):
+                summary_result = Runner.run_sync(summary_agent, input=compare_result.final_output)
+            st.markdown("**Summary of Errors:**")
+            st.write(summary_result.final_output)

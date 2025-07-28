@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
@@ -12,7 +11,6 @@ from agents import Agent, Runner
 
 # Load API key from .env
 load_dotenv()
-openai_api_key = os.getenv("OPENAI_API_KEY")
 
 st.title("Agentic File Assistant (using Agents SDK)")
 

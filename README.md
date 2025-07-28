@@ -18,5 +18,7 @@ cover everything provided in the upload.
 
 When you press **Analyze Financials** in the web interface, the app runs four
 agents in sequence: it extracts the statements, extracts the notes, compares
-the figures and then produces a summary table of any issues found.
+the figures and then produces a summary table of any issues found. As each step
+runs the page shows which agent is executing and only the final summary table
+is displayed.
 

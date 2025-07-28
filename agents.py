@@ -18,8 +18,8 @@ class Runner:
 
     @staticmethod
     def run_sync(agent: Agent, input: str):
-        if OpenAI is None:
-            return SimpleNamespace(final_output="OpenAI library not installed.")
+        if OpenAI is None or not os.getenv("OPENAI_API_KEY"):
+            return SimpleNamespace(final_output="OpenAI API not configured.")
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         response = client.chat.completions.create(
             model=agent.model,

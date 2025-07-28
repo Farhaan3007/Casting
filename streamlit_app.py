@@ -1,4 +1,5 @@
 import os
+import asyncio
 import streamlit as st
 import pandas as pd
 from dotenv import load_dotenv
@@ -47,12 +48,10 @@ if uploaded:
         if st.button("Run Agent") and user_query:
             agent = Agent(
                 name="File Agent",
-                instructions=(
-                    "Extract the document in markdown"
-                ),
-                model="gpt-4o"
+                instructions="Extract the document in markdown",
+                model="gpt-4o",
             )
             prompt = f"{text[:4000]}\n\nUser question: {user_query}"
-            result = Runner.run_sync(agent, input=prompt)
+            result = asyncio.run(Runner.run(agent, input=prompt))
             st.markdown("**Agent Response:**")
             st.write(result.final_output)
